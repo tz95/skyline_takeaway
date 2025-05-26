@@ -43,17 +43,20 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
      */
     @Bean
     public Docket docket() {
+        log.info("开始注册knife4j接口文档...");
         ApiInfo apiInfo = new ApiInfoBuilder()
                 .title("苍穹外卖项目接口文档")
                 .version("2.0")
                 .description("苍穹外卖项目接口文档")
                 .build();
+
         Docket docket = new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.sky.controller"))
                 .paths(PathSelectors.any())
                 .build();
+
         return docket;
     }
 
