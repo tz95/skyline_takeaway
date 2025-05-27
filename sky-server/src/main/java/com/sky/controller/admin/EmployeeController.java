@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.websocket.server.PathParam;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -99,11 +100,44 @@ public class EmployeeController {
      */
     @GetMapping("/page")
     @ApiOperation("分页查询员工")
-    public Result<PageResult> page(EmployeePageQueryDTO empPageQueryDTO) {
+    public Result<PageResult> page(@RequestBody EmployeePageQueryDTO empPageQueryDTO) {
         log.info("分页查询员工,参数为:{}", empPageQueryDTO);
         // 这里可以添加分页查询逻辑
         PageResult pageResult = employeeService.pageQuery(empPageQueryDTO);
         return Result.success(pageResult);
+    }
+
+    /**
+     * 切换员工账号状态(启用/禁用)
+     * @param status 状态
+     * @param id 员工id
+     * @return JSON格式的结果
+     */
+    @PostMapping( value = "/status/{status}", headers = "Accept=application/json")
+    @ApiOperation("切换员工账号状态(启用/禁用)")
+    public Result<String> switchAccountStatus(@PathVariable("status") Integer status,@RequestParam("id") Long id){
+        log.info("切换员工状态信息: 传入参数 status = {}, 员工id = {}", status, id);
+        // 调用服务层方法切换员工状态
+        employeeService.switchAccountStatus(status, id);
+        return Result.success();
+    }
+
+    @GetMapping("/{id}")
+    @ApiOperation("根据员工id查询员工")
+    public Result<Employee> getById(@PathVariable("id") Long id){
+        log.info("根据员工id查询员工: {}", id);
+        // 调用服务层方法根据id查询员工
+        Employee employee = employeeService.getById(id);
+        return Result.success(employee);
+    }
+
+    @PutMapping
+    @ApiOperation("更新员工信息")
+    public Result<String> updateEmployee(@RequestBody EmployeeDTO employeeDto) {
+        log.info("更新员工信息: {}", employeeDto);
+        // 调用服务层方法更新员工信息
+        employeeService.updateEmployee(employeeDto);
+        return Result.success();
     }
 
 }

@@ -110,5 +110,49 @@ public class EmployeeServiceImpl implements EmployeeService {
         return new PageResult(total, records);
     }
 
+    /**
+     * 根据传入的id和status切换员工账号状态(启用/禁用)
+     *
+     * @param status 账号状态
+     * @param id     员工id
+     */
+    @Override
+    public void switchAccountStatus(Integer status, Long id) {
+        employeeMapper.update(Employee.builder()
+                .id(id)
+                .status(status)
+                .build());
+    }
+
+    /**
+     * 更新员工信息
+     *
+     * @param employeeDto 员工DTO对象
+     */
+    @Override
+    public void updateEmployee(EmployeeDTO employeeDto) {
+        Employee employee = new Employee();
+        BeanUtils.copyProperties(employeeDto, employee);
+        // 设置更新时间和更新人
+        employee.setUpdateTime(LocalDateTime.now());
+        employee.setUpdateUser(BaseContext.getCurrentId());
+        employeeMapper.update(employee);
+    }
+
+    /**
+     * 根据员工id查询员工信息
+     *
+     * @param id 员工id
+     * @return 员工信息
+     */
+    @Override
+    public Employee getById(Long id) {
+        Employee emp = employeeMapper.getById(id);
+        if (emp == null) {
+            throw new AccountNotFoundException("emp.id:"+id+MessageConstant.ACCOUNT_NOT_FOUND);
+        }
+        return emp;
+    }
+
 
 }
