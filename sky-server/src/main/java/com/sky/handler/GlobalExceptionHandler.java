@@ -5,6 +5,7 @@ import com.sky.exception.AccountNotFoundException;
 import com.sky.exception.BaseException;
 import com.sky.result.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -48,5 +49,11 @@ public class GlobalExceptionHandler {
     public Result accountNotFoundExceptionHandler(AccountNotFoundException ex) {
         log.error("业务异常信息：{}", ex.getMessage());
         return Result.error(MessageConstant.ACCOUNT_NOT_FOUND);
+    }
+
+    @ExceptionHandler
+    public Result fileUploadFailureHandler(FileUploadException ex){
+        log.error("文件上传失败: {}", ex.getMessage());
+        return Result.error(MessageConstant.UPLOAD_FAILED);
     }
 }

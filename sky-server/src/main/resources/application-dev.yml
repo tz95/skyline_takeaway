@@ -6,3 +6,6 @@ sky:
     database: skyline_takeaway
     username: heima
     password: 123456
+  file:
+    local-oss-path: D:/images/
+    local-oss-url: http://localhost:8080
