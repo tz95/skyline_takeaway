@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -57,5 +59,14 @@ public class JwtTokenAdminInterceptor implements HandlerInterceptor {
             response.setStatus(401);
             return false;
         }
+    }
+
+    @Override
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+        // 清除当前线程中的员工id，防止内存泄漏
+
+        BaseContext.removeCurrentId();
+        // 调用父类的postHandle方法
+        HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
     }
 }

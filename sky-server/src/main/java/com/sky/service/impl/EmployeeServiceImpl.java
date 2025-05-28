@@ -9,6 +9,7 @@ import com.sky.context.BaseContext;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.dto.EmployeePageQueryDTO;
+import com.sky.dto.EmployeePwdDTO;
 import com.sky.entity.Employee;
 import com.sky.exception.AccountLockedException;
 import com.sky.exception.AccountNotFoundException;
@@ -23,6 +24,7 @@ import org.springframework.util.DigestUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -52,10 +54,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         // 密码比对
         // 对前端传入的明文密码进行MD5加密
         password = DigestUtils.md5DigestAsHex(password.getBytes());
-        if (!password.equals(employee.getPassword())) {
-            // 密码错误
-            throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
-        }
+        equalPassword(password, employee);
 
         if (employee.getStatus() == StatusConstant.DISABLE) {
             // 账号被锁定
@@ -85,7 +84,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         // 4、设置创建人和更新人
         employee.setCreateUser(BaseContext.getCurrentId());
         employee.setUpdateUser(BaseContext.getCurrentId());
-        BaseContext.removeCurrentId();
 
         // 5、调用mapper添加员工
         employeeMapper.addEmployee(employee);
@@ -147,12 +145,53 @@ public class EmployeeServiceImpl implements EmployeeService {
      */
     @Override
     public Employee getById(Long id) {
+        Employee emp = getEmpById(id);
+        // 返回时不包含密码信息
+        emp.setPassword(null);
+        return emp;
+    }
+
+    /**
+     * 修改员工密码
+     *
+     * @param employeePwdDTO 员工密码DTO对象
+     */
+    @Override
+    public void editPassword(EmployeePwdDTO employeePwdDTO) {
+        Employee emp = getEmpById(employeePwdDTO.getEmpId());
+        if (emp == null) {
+            throw new AccountNotFoundException(MessageConstant.ACCOUNT_NOT_FOUND);
+        }
+        equalPassword(DigestUtils.md5DigestAsHex(employeePwdDTO.getOldPassword().getBytes()), emp);
+        // 对新密码进行MD5加密
+        emp.setPassword(DigestUtils.md5DigestAsHex(employeePwdDTO.getNewPassword().getBytes()));
+        // 设置更新时间和更新人
+        emp.setUpdateTime(LocalDateTime.now());
+        emp.setUpdateUser(BaseContext.getCurrentId());
+
+        employeeMapper.update(emp);
+    }
+
+    /**
+     * 比较前端传入的密码和数据库中存储的密码是否一致
+     * @param password 前端传入的明文密码
+     * @param emp 数据库中查询到的员工对象
+     * @return true表示密码一致，false表示密码不一致
+     */
+    private void equalPassword(String password, Employee emp) {
+        boolean flag = password.equals(emp.getPassword());
+        if (!flag) {
+            throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
+        }
+    }
+
+    private Employee getEmpById(Long id){
         Employee emp = employeeMapper.getById(id);
+        emp.setPassword(null);
         if (emp == null) {
             throw new AccountNotFoundException("emp.id:"+id+MessageConstant.ACCOUNT_NOT_FOUND);
         }
         return emp;
     }
-
 
 }
