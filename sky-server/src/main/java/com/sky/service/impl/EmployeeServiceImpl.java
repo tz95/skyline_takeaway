@@ -78,12 +78,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setStatus(StatusConstant.ENABLE);
         // 2、设置默认密码并进行MD5加密
         employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
-        // 3、设置创建时间和更新时间
+        /*// 3、设置创建时间和更新时间
         employee.setCreateTime(LocalDateTime.now());
         employee.setUpdateTime(LocalDateTime.now());
         // 4、设置创建人和更新人
         employee.setCreateUser(BaseContext.getCurrentId());
-        employee.setUpdateUser(BaseContext.getCurrentId());
+        employee.setUpdateUser(BaseContext.getCurrentId());*/
 
         // 5、调用mapper添加员工
         employeeMapper.addEmployee(employee);
@@ -131,9 +131,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     public void updateEmployee(EmployeeDTO employeeDto) {
         Employee employee = new Employee();
         BeanUtils.copyProperties(employeeDto, employee);
-        // 设置更新时间和更新人
+        /*// 设置更新时间和更新人
         employee.setUpdateTime(LocalDateTime.now());
-        employee.setUpdateUser(BaseContext.getCurrentId());
+        employee.setUpdateUser(BaseContext.getCurrentId());*/
         employeeMapper.update(employee);
     }
 
@@ -165,9 +165,9 @@ public class EmployeeServiceImpl implements EmployeeService {
         equalPassword(DigestUtils.md5DigestAsHex(employeePwdDTO.getOldPassword().getBytes()), emp);
         // 对新密码进行MD5加密
         emp.setPassword(DigestUtils.md5DigestAsHex(employeePwdDTO.getNewPassword().getBytes()));
-        // 设置更新时间和更新人
+        /* // 设置更新时间和更新人
         emp.setUpdateTime(LocalDateTime.now());
-        emp.setUpdateUser(BaseContext.getCurrentId());
+        emp.setUpdateUser(BaseContext.getCurrentId());*/
 
         employeeMapper.update(emp);
     }
