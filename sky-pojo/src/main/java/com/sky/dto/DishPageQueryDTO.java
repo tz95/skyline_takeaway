@@ -2,13 +2,16 @@ package com.sky.dto;
 
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 @Data
 public class DishPageQueryDTO implements Serializable {
 
+    @NotBlank
     private int page;
 
+    @NotBlank
     private int pageSize;
 
     private String name;

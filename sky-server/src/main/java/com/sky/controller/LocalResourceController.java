@@ -25,9 +25,9 @@ import java.nio.file.Paths;
 @Slf4j
 public class LocalResourceController {
 
-    @GetMapping("/{file}")
+    @GetMapping(value = "/{Photo}")
     @ApiOperation("获取本地PNG图片")
-    public ResponseEntity<byte[]> getImage(@PathVariable String file) {
+    public ResponseEntity<byte[]> getImage(@PathVariable("Photo") String file) {
         byte[] bytes;
         try {
             bytes = Files.readAllBytes(Paths.get("D:/images/" + file));

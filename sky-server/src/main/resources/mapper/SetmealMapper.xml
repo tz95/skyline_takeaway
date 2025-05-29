@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sky.mapper.SetmealMapper">
+
+
+    <update id="updateStatusByIds">
+        UPDATE `setmeal`
+        <set>
+            <if test="category_id">`category_id`=#{category_id},</if>
+            <if test="name">`name`=#{name},</if>
+            <if test="price">`price`=#{price},</if>
+            <if test="status">`status`=#{status},</if>
+            <if test="description">`description`=#{description},</if>
+            <if test="image">`image`=#{image},</if>
+            <if test="update_time">`update_time`=#{update_time},</if>
+            <if test="update_user">`update_user`=#{update_user},</if>
+        </set>
+        WHERE id IN
+        <if test="setmealIds != null and setmealIds.size() > 0">
+            <foreach collection="setmealIds" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+    </update>
+
+</mapper>
