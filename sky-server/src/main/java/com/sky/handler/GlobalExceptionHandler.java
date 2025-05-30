@@ -3,6 +3,8 @@ package com.sky.handler;
 import com.sky.constant.MessageConstant;
 import com.sky.exception.AccountNotFoundException;
 import com.sky.exception.BaseException;
+import com.sky.exception.DeletionNotAllowedException;
+import com.sky.exception.SetmealNotFoundException;
 import com.sky.result.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.http.fileupload.FileUploadException;
@@ -55,5 +57,17 @@ public class GlobalExceptionHandler {
     public Result fileUploadFailureHandler(FileUploadException ex){
         log.error("文件上传失败: {}", ex.getMessage());
         return Result.error(MessageConstant.UPLOAD_FAILED);
+    }
+
+    @ExceptionHandler
+    public Result setmealNotFoundExceptionHandler(SetmealNotFoundException ex) {
+        log.error("套餐未找到异常信息：{}", ex.getMessage());
+        return Result.error(MessageConstant.SETMEAL_NOTFOUND_FAILED);
+    }
+
+    @ExceptionHandler
+    public Result deletionNotAllowedExceptionHandler(DeletionNotAllowedException ex) {
+        log.error("删除失败: {}", ex.getMessage());
+        return Result.error(ex.getMessage());
     }
 }

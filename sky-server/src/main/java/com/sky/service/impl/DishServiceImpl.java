@@ -97,7 +97,7 @@ public class DishServiceImpl implements DishService {
         List<Dish> dishes = dishMapper.getByIds(ids);
         dishes.forEach(d -> {
             if (StatusConstant.ENABLE.equals(d.getStatus())) {
-                throw new DeletionNotAllowedException("菜品 " + d.getName() + " 正在售卖中，无法删除");
+                throw new DeletionNotAllowedException(MessageConstant.DISH_ON_SALE);
             }
         });
 
@@ -183,8 +183,8 @@ public class DishServiceImpl implements DishService {
             // 如果没有关联的套餐ID，直接返回
             return;
         }
-        Setmeal setmeal = Setmeal.builder().status(dish.getStatus()).build();
+        Setmeal setmeal = Setmeal.builder().status(StatusConstant.DISABLE).build();
         // 更新所有关联套餐的状态
-        setmealMapper.updateStatusByIds(setmeal, setmealIds);
+        setmealMapper.updateByIds(setmeal, setmealIds);
     }
 }

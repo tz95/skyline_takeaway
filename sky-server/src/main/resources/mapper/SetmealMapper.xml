@@ -3,25 +3,85 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.sky.mapper.SetmealMapper">
 
+    <resultMap id="setmealVOMap" type="com.sky.vo.SetmealVO">
+        <id property="id" column="id"/>
+        <collection property="setmealDishes" ofType="com.sky.entity.SetmealDish"
+                    select="com.sky.mapper.SetmealDishMapper.getBySetmealId"
+                    column="id"/>
+    </resultMap>
 
-    <update id="updateStatusByIds">
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO `setmeal`(`category_id`, `name`, `price`, `description`, `image`, `create_time`, `update_time`,
+                              `create_user`, `update_user`)
+        VALUES (#{categoryId}, #{name}, #{price}, #{description}, #{image}, #{createTime}, #{updateTime}, #{createUser},
+                #{updateUser})
+    </insert>
+
+
+    <update id="updateByIds">
         UPDATE `setmeal`
         <set>
-            <if test="category_id">`category_id`=#{category_id},</if>
-            <if test="name">`name`=#{name},</if>
-            <if test="price">`price`=#{price},</if>
-            <if test="status">`status`=#{status},</if>
-            <if test="description">`description`=#{description},</if>
-            <if test="image">`image`=#{image},</if>
-            <if test="update_time">`update_time`=#{update_time},</if>
-            <if test="update_user">`update_user`=#{update_user},</if>
+            <if test="setmeal.categoryId != null">`category_id` = #{setmeal.categoryId},</if>
+            <if test="setmeal.name != null">`name` = #{setmeal.name},</if>
+            <if test="setmeal.price != null">`price` = #{setmeal.price},</if>
+            <if test="setmeal.status != null">`status` = #{setmeal.status},</if>
+            <if test="setmeal.description != null">`description` = #{setmeal.description},</if>
+            <if test="setmeal.image != null">`image` = #{setmeal.image},</if>
+            <if test="setmeal.updateTime != null">`update_time` = #{setmeal.updateTime},</if>
+            <if test="setmeal.updateUser != null">`update_user` = #{setmeal.updateUser},</if>
         </set>
         WHERE id IN
-        <if test="setmealIds != null and setmealIds.size() > 0">
-            <foreach collection="setmealIds" item="id" open="(" close=")" separator=",">
-                #{id}
-            </foreach>
-        </if>
+        <foreach collection="setmealIds" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
     </update>
+
+    <delete id="deleteByIds">
+        DELETE FROM `setmeal` WHERE id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="queryPage" resultMap="setmealVOMap">
+        SELECT
+        s.`id`, s.`category_id`, s.`name`, s.`price`, s.`status`, s.`description`, s.`image`, s.`update_time`, c.`name`
+        as 'categoryName'
+        FROM `setmeal` s LEFT JOIN `category` c ON s.category_id = c.id
+        <where>
+            <if test="name != null and name != ''">
+                s.`name` LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="status != null">
+                AND s.`status` = #{status}
+            </if>
+            <if test="categoryId != null">
+                AND s.`category_id` = #{categoryId}
+            </if>
+        </where>
+        ORDER BY s.`create_time` DESC
+    </select>
+
+    <select id="getById" resultMap="setmealVOMap">
+        SELECT s.`id`,
+               s.`category_id`,
+               s.`name`,
+               s.`price`,
+               s.`status`,
+               s.`description`,
+               s.`image`,
+               s.`update_time`,
+               c.`name` as categoryName
+        FROM `setmeal` as s
+                 LEFT JOIN `category` c ON s.category_id = c.id
+        WHERE s.id = #{id}
+    </select>
+
+    <select id="getByIds" resultType="com.sky.entity.Setmeal">
+        SELECT * FROM `setmeal` WHERE id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
 
 </mapper>

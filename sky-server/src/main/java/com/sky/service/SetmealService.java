@@ -1,0 +1,60 @@
+package com.sky.service;
+
+import com.sky.dto.SetmealDTO;
+import com.sky.dto.SetmealPageQueryDTO;
+import com.sky.result.PageResult;
+import com.sky.vo.SetmealVO;
+
+import java.util.List;
+
+/**
+ * @author tz95
+ * @project sky-take-out
+ * @date 2025/5/29
+ */
+public interface SetmealService {
+
+    /**
+     * 新增套餐
+     *
+     * @param setmealDTO 套餐数据传输对象
+     */
+    void addSetmeal(SetmealDTO setmealDTO);
+
+    /**
+     * 分页查询套餐
+     *
+     * @param setmealPageQueryDTO 分页查询参数
+     * @return 分页结果
+     */
+    PageResult pageQuery(SetmealPageQueryDTO setmealPageQueryDTO);
+
+    /**
+     * 根据ID查询套餐
+     *
+     * @param id 套餐ID
+     * @return 套餐视图对象
+     */
+    SetmealVO getById(Long id);
+
+    /**
+     * 批量删除套餐
+     *
+     * @param ids 套餐ID列表
+     */
+    void deleteByIds(List<Long> ids);
+
+    /**
+     * 更新套餐信息
+     *
+     * @param setmealDTO 套餐信息
+     */
+    void updateSetmeal(SetmealDTO setmealDTO);
+
+    /**
+     * 更新套餐状态
+     *
+     * @param build 套餐视图对象
+     */
+    void switchStatus(SetmealVO build);
+}

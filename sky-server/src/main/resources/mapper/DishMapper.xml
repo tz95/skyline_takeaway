@@ -57,4 +57,10 @@
             #{id}
         </foreach>
     </select>
+
+    <select id="getStatusBySetmeal" resultType="com.sky.entity.Dish">
+
+    </select>
+
+
 </mapper>
