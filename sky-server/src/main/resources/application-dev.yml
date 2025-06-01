@@ -9,3 +9,10 @@ sky:
   file:
     local-oss-path: D:/images/
     local-oss-url: http://localhost:8080
+  redis:
+    host: localhost
+    port: 6379
+    password: 114514
+    database: 0
+
+

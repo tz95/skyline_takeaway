@@ -1,4 +1,4 @@
-package com.sky.controller;
+package com.sky.controller.common;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
