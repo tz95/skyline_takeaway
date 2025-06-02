@@ -73,9 +73,9 @@ public interface DishMapper {
     List<Dish> getByCategoryId(Long categoryId);
 
     /**
-     * 根据ID查询菜品信息
-     * @param ids 菜品ID列表
-     * @return Dish 菜品信息列表
+     * 条件查询菜品
+     * @param dish 菜品信息
+     * @return List<Dish> 菜品对象列表
      */
-    List<Dish> getStatusBySetmeal(List<Long> ids);
+    List<Dish> list(Dish dish);
 }

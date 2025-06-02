@@ -58,8 +58,19 @@
         </foreach>
     </select>
 
-    <select id="getStatusBySetmeal" resultType="com.sky.entity.Dish">
-
+    <select id="list" resultType="com.sky.entity.Dish">
+        SELECT * FROM `dish`
+        <where>
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="categoryId != null">
+                AND category_id = #{categoryId}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
     </select>
 
 
