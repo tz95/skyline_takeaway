@@ -17,6 +17,10 @@ spring:
     port: ${sky.redis.port}
     password: ${sky.redis.password}
     database: ${sky.redis.database}
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600000 # 1小时
 
 mybatis:
   #mapper配置文件
