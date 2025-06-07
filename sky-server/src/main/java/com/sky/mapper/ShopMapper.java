@@ -14,7 +14,7 @@ public interface ShopMapper {
 
     // /**
     //  * 更新店铺状态
-    //  * @return 店铺状态
+    //  * @param status 店铺状态
     //  */
     // @Update("UPDATE `status` SET `status` = #{status} WHERE `id` = 1")
     // public void update(short status);

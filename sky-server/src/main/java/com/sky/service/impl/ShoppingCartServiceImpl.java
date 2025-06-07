@@ -82,4 +82,55 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     }
 
+    /**
+     * 查询购物车列表
+     *
+     * @return 购物车列表
+     */
+    @Override
+    public List<ShoppingCart> showShoppingCart() {
+        Long userId = BaseContext.getCurrentId();
+        List<ShoppingCart> list = shoppingCartMapper.list(ShoppingCart.builder().userId(userId).build());
+        return list;
+    }
+
+    /**
+     * 清空购物车
+     */
+    @Override
+    public void cleanShoppingCart() {
+        Long userId = BaseContext.getCurrentId();
+        shoppingCartMapper.deleteByUserId(userId);
+    }
+
+    /**
+     * 从购物车中删除商品
+     *
+     * @param shoppingCartDTO 购物车数据传输对象
+     */
+    @Override
+    public void subShoppingCart(ShoppingCartDTO shoppingCartDTO) {
+        Long userId = BaseContext.getCurrentId();
+        Long dishId = shoppingCartDTO.getDishId();
+        List<ShoppingCart> list = shoppingCartMapper.list(ShoppingCart.builder()
+                .userId(userId)
+                .dishId(dishId)
+                .dishFlavor(shoppingCartDTO.getDishFlavor())
+                .setmealId(shoppingCartDTO.getSetmealId())
+                .build());
+        if (dishId != null || shoppingCartDTO.getSetmealId() != null) {
+            if (list != null && !list.isEmpty()) {
+                ShoppingCart cart = list.get(0);
+                if (cart.getNumber() > 1) {
+                    // 如果数量大于1，数量-1
+                    cart.setNumber(cart.getNumber() - 1);
+                    shoppingCartMapper.updateNumberById(cart);
+                } else {
+                    // 如果数量等于1，删除该记录
+                    shoppingCartMapper.deleteByEntityId(cart.getId());
+                }
+            }
+        }
+    }
+
 }

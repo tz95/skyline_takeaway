@@ -64,9 +64,6 @@ public class JwtTokenUserInterceptor implements HandlerInterceptor {
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
         // 清除当前线程中的员工id，防止内存泄漏
-
         BaseContext.removeCurrentId();
-        // 调用父类的postHandle方法
-        HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
     }
 }

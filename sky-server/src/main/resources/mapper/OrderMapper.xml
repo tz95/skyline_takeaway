@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sky.mapper.OrderMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO `orders` (number, status, user_id, address_book_id,
+                              order_time, checkout_time, pay_method, pay_status,
+                              amount, remark, phone, address, user_name, consignee,
+                              cancel_reason, rejection_reason, cancel_time,
+                              estimated_delivery_time, delivery_status, delivery_time,
+                              pack_amount, tableware_number, tableware_status)
+        VALUES
+            (#{number}, #{status}, #{userId}, #{addressBookId},
+             #{orderTime}, #{checkoutTime}, #{payMethod}, #{payStatus},
+             #{amount}, #{remark}, #{phone}, #{address}, #{userName}, #{consignee},
+             #{cancelReason}, #{rejectionReason}, #{cancelTime},
+             #{estimatedDeliveryTime}, #{deliveryStatus}, #{deliveryTime},
+             #{packAmount}, #{tablewareNumber}, #{tablewareStatus})
+    </insert>
+
+    <update id="update" parameterType="com.sky.entity.Orders">
+        update orders
+        <set>
+            <if test="cancelReason != null and cancelReason!='' ">
+                cancel_reason=#{cancelReason},
+            </if>
+            <if test="rejectionReason != null and rejectionReason!='' ">
+                rejection_reason=#{rejectionReason},
+            </if>
+            <if test="cancelTime != null">
+                cancel_time=#{cancelTime},
+            </if>
+            <if test="payStatus != null">
+                pay_status=#{payStatus},
+            </if>
+            <if test="payMethod != null">
+                pay_method=#{payMethod},
+            </if>
+            <if test="checkoutTime != null">
+                checkout_time=#{checkoutTime},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="deliveryTime != null">
+                delivery_time = #{deliveryTime}
+            </if>
+            <if test="estimatedDeliveryTime != null">
+                estimated_delivery_time = #{estimatedDeliveryTime}
+            </if>
+            <if test="deliveryStatus != null">
+                delivery_status = #{deliveryStatus}
+            </if>
+            <if test="amount != null">
+                amount = #{amount}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="getByPageQueryDTO" resultType="com.sky.vo.OrderVO">
+        SELECT * FROM `orders`
+        <where>
+            <if test="userId != null">
+                AND user_id = #{userId}
+            </if>
+            <if test="number != null and number != ''">
+                AND number = #{number}
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+            <if test="startTime != null">
+                AND order_time &gt;= #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND order_time &lt;= #{endTime}
+            </if>
+            <if test="phone != null and phone != ''">
+                AND phone = #{phone}
+            </if>
+        </where>
+    </select>
+
+    <select id="getStatisticsOrders" resultType="com.sky.vo.OrderStatisticsVO">
+        SELECT SUM(status=2) as `toBeConfirmed`, SUM(status=3) as `confirmed`, SUM(status=4) as deliveryInProgress FROM `orders`
+    </select>
+</mapper>
