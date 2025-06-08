@@ -1,5 +1,6 @@
 package com.sky.controller.user;
 
+import com.sky.context.BaseContext;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
@@ -49,7 +50,7 @@ public class OrderController {
     public Result<OrderPaymentVO> payment(@RequestBody OrdersPaymentDTO ordersPaymentDTO) throws Exception {
         log.info("订单支付：{}", ordersPaymentDTO);
         OrderPaymentVO orderPaymentVO = orderService.payment(ordersPaymentDTO);
-        log.info("生成预支付交易单：{}", orderPaymentVO);
+        orderService.paySuccess(ordersPaymentDTO.getOrderNumber());
         return Result.success(orderPaymentVO);
     }
 
@@ -57,6 +58,8 @@ public class OrderController {
     @ApiOperation("历史订单查询")
     public Result<PageResult> historyOrders(OrdersPageQueryDTO ordersPageQueryDTO) {
         log.info("历史订单查询：{}", ordersPageQueryDTO);
+        Long userId = BaseContext.getCurrentId();
+        ordersPageQueryDTO.setUserId(userId);
         PageResult pageResult = orderService.conditionOrdersQuery(ordersPageQueryDTO);
         return Result.success(pageResult);
     }
@@ -82,6 +85,14 @@ public class OrderController {
     public Result repetitionOrder(@PathVariable("id") Long id){
         log.info("要再来一单的订单ID：{}", id);
         orderService.repetitionOrder(id);
+        return Result.success();
+    }
+
+    @GetMapping("/reminder/{id}")
+    @ApiOperation("订单催单")
+    public Result reminderOrder(@PathVariable("id") Long id) {
+        log.info("收到用户催单，订单ID：{}", id);
+        orderService.reminderOrder(id);
         return Result.success();
     }
 

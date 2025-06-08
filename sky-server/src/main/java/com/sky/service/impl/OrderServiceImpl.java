@@ -22,6 +22,7 @@ import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
+import com.sky.websocket.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,10 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author tz95
@@ -68,6 +66,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Value("${sky.baidu.ak}")
     private String ak;
+
+    @Autowired
+    private WebSocketServer webSocketServer;
 
     /**
      * 用户提交订单
@@ -153,13 +154,18 @@ public class OrderServiceImpl implements OrderService {
         Long userId = BaseContext.getCurrentId();
         User user = userMapper.getById(userId);
 
-        //调用微信支付接口，生成预支付交易单
-        JSONObject jsonObject = weChatPayUtil.pay(
-                ordersPaymentDTO.getOrderNumber(), //商户订单号
-                new BigDecimal(0.01), //支付金额，单位 元
-                "苍穹外卖订单", //商品描述
-                user.getOpenid() //微信用户的openid
-        );
+        // //调用微信支付接口，生成预支付交易单
+        // JSONObject jsonObject = weChatPayUtil.pay(
+        //         //商户订单号
+        //         ordersPaymentDTO.getOrderNumber(),
+        //         //支付金额，单位 元
+        //         new BigDecimal(0.01),
+        //         //商品描述
+        //         "苍穹外卖订单",
+        //         //微信用户的openid
+        //         user.getOpenid()
+        // );
+        JSONObject jsonObject = new JSONObject();
 
         if (jsonObject.getString("code") != null && jsonObject.getString("code").equals("ORDERPAID")) {
             throw new OrderBusinessException("该订单已支付");
@@ -174,7 +180,7 @@ public class OrderServiceImpl implements OrderService {
     /**
      * 支付成功，修改订单状态
      *
-     * @param outTradeNo
+     * @param outTradeNo 订单号
      */
     public void paySuccess(String outTradeNo) {
 
@@ -190,6 +196,26 @@ public class OrderServiceImpl implements OrderService {
                 .build();
 
         orderMapper.update(orders);
+
+        pushMessageToServer(1, orders.getId(), "订单号: " + outTradeNo);
+    }
+
+    /**
+     * 订单催单
+     *
+     * @param id 订单ID
+     */
+    @Override
+    public void reminderOrder(Long id) {
+        // 根据id查询订单
+        OrderVO orders = orderMapper.getById(id);
+
+        if (orders == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+
+        pushMessageToServer(2, orders.getId(), orders.getNumber());
+
     }
 
     /**
@@ -200,18 +226,12 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     public PageResult conditionOrdersQuery(OrdersPageQueryDTO ordersPage) {
-        // 获取当前登录用户ID
-        Long userId = BaseContext.getCurrentId();
-        ordersPage.setUserId(userId);
         // 启动分页
         PageHelper.startPage(ordersPage.getPage(), ordersPage.getPageSize());
         Page<OrderVO> page = orderMapper.getByPageQueryDTO(ordersPage);
         long total = page.getTotal();
         List<OrderVO> orderVOList = page.getResult();
         PageHelper.clearPage();
-        if (total==0) {
-            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
-        }
         orderVOList.forEach(orderVO -> {
              List<OrderDetail> list = orderDetailMapper.getByOrderId(orderVO.getId());
              list.forEach(orderDetail -> {
@@ -330,17 +350,12 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     public void rejectionOrders(OrdersRejectionDTO rejectionDTO) {
-        Orders orders = new Orders();
-        OrderVO vo = orderMapper.getById(rejectionDTO.getId());
-        BeanUtils.copyProperties(vo, orders);
-        // 设置订单状态为已取消
-        orders.setStatus(Orders.CANCELLED);
-        // 设置拒单原因
-        orders.setRejectionReason(rejectionDTO.getRejectionReason());
-        if (orders.getPayStatus() != Orders.UN_PAID) {
-            // 如果订单已支付，设置支付状态为退款
-            orders.setPayStatus(Orders.REFUND);
-        }
+        Orders orders = Orders.builder()
+                .id(rejectionDTO.getId())
+                .status(Orders.CANCELLED)
+                .rejectionReason(rejectionDTO.getRejectionReason())
+                .cancelTime(LocalDateTime.now())
+                .build();
         // 更新订单状态
         orderMapper.update(orders);
     }
@@ -450,6 +465,18 @@ public class OrderServiceImpl implements OrderService {
             throw new OrderBusinessException("超出配送范围");
         }
 
+    }
+
+    private void pushMessageToServer(Integer type,Long orderId, String content) {
+        // 通过WebSocket向服务端推送消息  type orderId content
+        Map<String, Object> map = new HashMap<>();
+        // 1 表示来单提醒, 2 表示用户催单
+        map.put("type", type);
+        map.put("orderId", orderId);
+        map.put("content", content);
+
+        String jsonString = JSON.toJSONString(map);
+        webSocketServer.sendToAllClient(jsonString);
     }
 
 }

@@ -8,6 +8,9 @@ import com.sky.vo.OrderVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 /**
  * @author tz95
  * @project sky-take-out
@@ -57,4 +60,13 @@ public interface OrderMapper {
      * @return 订单统计视图对象
      */
     OrderStatisticsVO getStatisticsOrders();
+
+    /**
+     * 根据订单状态和订单时间查询订单
+     * @param pendingPayment 订单状态
+     * @param time 订单时间
+     * @return 符合条件的订单列表
+     */
+    @Select("SELECT * FROM orders WHERE status = #{pendingPayment} AND order_time < #{time}")
+    List<Orders> getByStatusAndOrderTimeLT(Integer pendingPayment, LocalDateTime time);
 }

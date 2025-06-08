@@ -60,7 +60,7 @@ public class OrderController {
      */
     @GetMapping("/details/{id}")
     @ApiOperation("根据订单ID查询订单详情")
-    public Result<OrderVO> getOrderDetail(Long id) {
+    public Result<OrderVO> getOrderDetail(@PathVariable("id") Long id) {
         log.info("根据订单ID查询订单详情: {}", id);
         OrderVO orderVO = orderService.getOrderDetail(id);
         return Result.success(orderVO);
@@ -68,14 +68,14 @@ public class OrderController {
 
     /**
      * 管理端接单
-     * @param id 订单ID
+     * @param ordersRejectionDTO 订单ID
      * @return 成功结果
      */
-    @PutMapping(value = "/confirm", consumes = "application/json")
+    @PutMapping(value = "/confirm")
     @ApiOperation("接单")
-    public Result confirmOrder(@RequestBody Long id) {
-        log.info("接单: {}", id);
-        orderService.confirmOrders(id);
+    public Result confirmOrder(@RequestBody OrdersRejectionDTO ordersRejectionDTO) {
+        log.info("接单: {}", ordersRejectionDTO);
+        orderService.confirmOrders(ordersRejectionDTO.getId());
         return Result.success();
     }
 

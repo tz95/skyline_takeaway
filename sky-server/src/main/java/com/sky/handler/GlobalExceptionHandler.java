@@ -73,4 +73,10 @@ public class GlobalExceptionHandler {
         log.error("登录失败: {}", ex.getMessage());
         return Result.error(MessageConstant.LOGIN_FAILED);
     }
+
+    @ExceptionHandler
+    public Result orderBusinessExceptionHandler(OrderBusinessException ex) {
+        log.error("订单业务异常: {}", ex.getMessage());
+        return Result.error(ex.getMessage());
+    }
 }
