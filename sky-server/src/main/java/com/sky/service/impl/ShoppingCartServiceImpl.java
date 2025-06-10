@@ -50,9 +50,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         List<ShoppingCart> list = shoppingCartMapper.list(shoppingCart);
         // 如存在，数量+1;
         if (list!=null && !list.isEmpty()) {
-            ShoppingCart cart = list.get(0);
-            cart.setNumber(shoppingCart.getNumber()+1);
-            shoppingCartMapper.updateNumberById(cart);
+            shoppingCart = list.get(0);
+            shoppingCart.setNumber(shoppingCart.getNumber()+1);
+            shoppingCartMapper.updateNumberById(shoppingCart);
         }else {
             // 如不存在，插入一条新记录
             Long dishId = shoppingCartDTO.getDishId();
@@ -78,7 +78,6 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
         }
 
-        // 如不存在，插入一条新记录
 
     }
 

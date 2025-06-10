@@ -1,26 +1,27 @@
 package com.sky.service.impl;
 
-import com.sky.dto.TurnoverStatisticsDTO;
-import com.sky.dto.UserStatisticsDTO;
+import com.sky.dto.SalesReportDTO;
 import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
 import com.sky.vo.OrderReportVO;
+import com.sky.vo.SalesTop10ReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.util.StringUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
+ * 报告服务实现类
  * @author tz95
  * @project sky-take-out
  * @date 2025/6/8
@@ -65,8 +66,8 @@ public class ReportServiceImpl implements ReportService {
         });
         // 封装返回结果
         return TurnoverReportVO.builder()
-                .dateList(StringUtil.join(",", dateList))
-                .turnoverList(StringUtil.join(",",turnoverList))
+                .dateList(StringUtils.join(dateList,","))
+                .turnoverList(StringUtils.join(turnoverList,","))
                 .build();
 /*        HashMap hashMap = new HashMap(4);
         hashMap.put("begin", LocalDateTime.of(begin, LocalTime.MIN));
@@ -82,8 +83,8 @@ public class ReportServiceImpl implements ReportService {
         });
         // 封装返回结果
         return TurnoverReportVO.builder()
-                .dateList(StringUtil.join(",", keys))
-                .turnoverList(StringUtil.join(",", values))
+                .dateList(StringUtils.join(",", keys))
+                .turnoverList(StringUtils.join(",", values))
                 .build();*/
     }
 
@@ -111,9 +112,9 @@ public class ReportServiceImpl implements ReportService {
         });
         // 构建并返回用户统计结果视图对象
         return UserReportVO.builder()
-                .dateList(StringUtil.join(",", dates))
-                .totalUserList(StringUtil.join(",", totalList))
-                .newUserList(StringUtil.join(",", newList))
+                .dateList(StringUtils.join(dates,","))
+                .totalUserList(StringUtils.join(totalList,","))
+                .newUserList(StringUtils.join(newList,","))
                 .build();
     }
     /*@Override
@@ -178,15 +179,46 @@ public class ReportServiceImpl implements ReportService {
         Double completionRate = totalOrderCount == 0 ? 0.0 :  validOrderCount.doubleValue() / totalOrderCount;
         // 构建并返回订单统计结果视图对象
         return OrderReportVO.builder()
-                .dateList(StringUtil.join(",", dates))
-                .orderCountList(StringUtil.join(",", totalList))
-                .validOrderCountList(StringUtil.join(",", validList))
+                .dateList(StringUtils.join(dates,","))
+                .orderCountList(StringUtils.join(totalList,","))
+                .validOrderCountList(StringUtils.join(validList,","))
                 .totalOrderCount(totalOrderCount)
                 .validOrderCount(validOrderCount)
                 .orderCompletionRate(completionRate)
                 .build();
     }
 
+    /**
+     * 获取销售额前10的商品统计信息
+     *
+     * @param begin 开始日期
+     * @param end   结束日期
+     * @return 销售额前10的商品统计结果视图对象
+     */
+    @Override
+    public SalesTop10ReportVO getTop10Sales(LocalDate begin, LocalDate end) {
+        LocalDateTime beginTime = LocalDateTime.of(begin, LocalTime.MIN);
+        LocalDateTime endTime = LocalDateTime.of(end, LocalTime.MAX);
+        // 获取指定日期范围内的销售额前10的商品统计数据
+        List<SalesReportDTO> result = orderMapper.getTop10Sales(beginTime, endTime);
+        List<String> names = result.stream().map(SalesReportDTO::getName).collect(Collectors.toList());
+        List<String> counts = result.stream().map(SalesReportDTO::getSalesCount).collect(Collectors.toList());
+
+        // 构建并返回销售额前10的商品统计结果视图对象
+        return SalesTop10ReportVO.builder()
+                .nameList(StringUtils.join(names,","))
+                .numberList(StringUtils.join(counts,","))
+                .build();
+    }
+
+    /**
+     * 获取指定日期范围内的订单数量
+     *
+     * @param begin  开始时间
+     * @param end    结束时间
+     * @param status 订单状态，null表示所有状态
+     * @return 订单数量
+     */
     private Integer getOrderCount(LocalDateTime begin, LocalDateTime end, Integer status) {
         Map<String, Object> map = new HashMap<>();
         map.put("begin", begin);
@@ -205,10 +237,10 @@ public class ReportServiceImpl implements ReportService {
     private List<LocalDate> getDateRange(LocalDate begin, LocalDate end) {
         List<LocalDate> dateList = new ArrayList<>();
         LocalDate current = begin;
-        while (!current.isBefore(end)) {
+        do {
             dateList.add(current);
             current = current.plusDays(1);
-        }
+        }while (!current.isAfter(end));
         return dateList;
     }
 
