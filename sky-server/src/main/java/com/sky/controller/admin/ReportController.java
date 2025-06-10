@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 
 /**
@@ -92,6 +93,16 @@ public class ReportController {
             @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam LocalDate end) {
         log.info("获取订单前10名, 时间区间: {},-{}", begin, end);
         return Result.success(reportService.getTop10Sales(begin, end));
+    }
+
+    /**
+     * 将运营数据导出位Excel报表
+     * @param resp 响应对象
+     */
+    @GetMapping("/export")
+    @ApiOperation("导出运营数据的Excel报表")
+    public void export(HttpServletResponse resp){
+        reportService.exportBusinessData(resp);
     }
 
 }
