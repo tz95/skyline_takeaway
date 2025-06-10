@@ -87,13 +87,13 @@ public class OrderServiceImpl implements OrderService {
             throw new AddressBookBusinessException(MessageConstant.ADDRESS_BOOK_IS_NULL);
         }
 
-        // 检查配送范围
+        /*// 检查配送范围
         checkOutOfRange(
                 (addressBook.getProvinceName()==null ? "" : addressBook.getProvinceName())
                 + addressBook.getCityName()
                 + addressBook.getDistrictName()
                 + addressBook.getDetail()
-        );
+        );*/
 
             // 查询当前用户购物车数据
         Long userId = BaseContext.getCurrentId();

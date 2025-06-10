@@ -2,6 +2,7 @@ package com.sky.mapper;
 
 import com.github.pagehelper.Page;
 import com.sky.dto.OrdersPageQueryDTO;
+import com.sky.dto.TurnoverStatisticsDTO;
 import com.sky.entity.Orders;
 import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderVO;
@@ -10,6 +11,7 @@ import org.apache.ibatis.annotations.Select;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author tz95
@@ -69,4 +71,24 @@ public interface OrderMapper {
      */
     @Select("SELECT * FROM orders WHERE status = #{pendingPayment} AND order_time < #{time}")
     List<Orders> getByStatusAndOrderTimeLT(Integer pendingPayment, LocalDateTime time);
+
+    /**
+     * 根据动态条件查询订单
+     * @param map 包含查询条件的映射
+     * @return 符合条件的订单列表
+     */
+    Double sumByMap(Map map);
+
+    /**
+     * 根据订单状态和订单时间查询订单
+     * @param map 包含查询条件的映射
+     * @return 符合条件的订单列表
+     */
+    List<TurnoverStatisticsDTO> sumByDate(Map map);
+
+    /**
+     * 获取订单数量
+     * @return 订单数量
+     */
+    Integer countByMap(Map map);
 }

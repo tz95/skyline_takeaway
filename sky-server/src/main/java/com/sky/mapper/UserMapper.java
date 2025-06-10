@@ -1,8 +1,14 @@
 package com.sky.mapper;
 
+import com.sky.dto.UserStatisticsDTO;
 import com.sky.entity.User;
+import com.sky.vo.UserReportVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author tz95
@@ -33,4 +39,18 @@ public interface UserMapper {
      */
     @Select("SELECT * FROM `user` WHERE id = #{userId}")
     User getById(Long userId);
+
+    // /**
+    //  * 根据条件查询用户数量
+    //  * @param map 查询条件
+    //  * @return 用户数量列表
+    //  */
+    // List<UserStatisticsDTO> countByMap(Map map);
+
+    /**
+     * 通过Map条件查询用户数量
+     * @param map 查询条件
+     * @return 根据条件查询到的用户数量
+     */
+    Integer countByMap(Map map);
 }

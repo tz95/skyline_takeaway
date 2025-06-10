@@ -9,4 +9,36 @@
         VALUES (#{openid}, #{name}, #{phone}, #{sex}, #{idNumber}, #{avatar}, #{createTime})
     </insert>
 
+    <!--<select id="countByMap" resultType="com.sky.dto.UserStatisticsDTO">
+        SELECT
+            DATE(create_time) AS `date`,
+            SUM(COUNT(*)) OVER(ORDER BY DATE(create_time)) AS `total`
+        FROM `user`
+        <where>
+            <if test="end != null">
+                AND create_time &lt;= #{end}
+            </if>
+            <if test="begin != null &amp;&amp; end != null">
+                AND DATE(`create_time`) BETWEEN DATE(#{begin}) AND DATE(#{end})
+            </if>
+        </where>
+        GROUP BY DATE(`create_time`)
+        ORDER BY `date`
+    </select>-->
+
+    <select id="countByMap" resultType="java.lang.Integer">
+        SELECT
+            COUNT(*)
+        FROM
+            `user`
+        <where>
+            <if test="end != null">
+                AND create_time &lt;= #{end}
+            </if>
+            <if test="begin != null">
+                AND create_time &gt;= #{begin}
+            </if>
+        </where>
+    </select>
+
 </mapper>
